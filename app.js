@@ -101,7 +101,7 @@ mongoose
     'mongodb+srv://Alfajri:desember31@cluster0.9xfnm.mongodb.net/shop'
   )
   .then(result => {
-    app.listen(3000);
+    app.listen(process.env.PORT);
     // let user = User.findOne().then(result => {
     //   if(!result) {
     //     user = new User({
