@@ -9,10 +9,7 @@ const errorController = require('./controllers/error');
 const csurf = require('csurf')
 const flash = require('connect-flash')
 const  multer = require('multer')
-const cors = require('cors')
 const app = express();
-
-app.use(cors())
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
