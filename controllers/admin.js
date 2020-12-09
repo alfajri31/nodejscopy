@@ -38,7 +38,7 @@ exports.postAddProduct = (req, res, next) => {
         price: price,
         description: description
       },
-      error: 'The File Is Not JPEG/PNG/JPG format',
+      error: 'This File Is Not JPEG/PNG/JPG format',
       isAuthenticated: req.session.isLoggedIn
     });
   }
@@ -70,7 +70,6 @@ exports.postAddProduct = (req, res, next) => {
   product
     .save()
     .then(result => {
-
       // console.log(result);
       console.log('Created Product');
       res.redirect('/admin/products');
