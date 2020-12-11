@@ -1,6 +1,9 @@
 /node_modules/*
-/data
 images/*
 !.keep
-data/invoices*
+data/invoices/*
 !.keep
+data/other/*
+!.keep
+
+
