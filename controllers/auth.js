@@ -77,6 +77,7 @@ exports.postSignup = (req, res, next) => {
   // console.log(error.errors[0].msg) // =>invalid value
 
   if(!error.isEmpty()) {
+
     console.log(error.errors)
        return res.status(422).render('auth/signup', {
         path: '/signup',
@@ -99,73 +100,71 @@ exports.postSignup = (req, res, next) => {
   
 
   User.findOne({email:email}).then( result => {
-     
+    
     if(result) {
-
       req.flash('error-signup','email has already been taken')
       res.redirect('/signup')
-      
     } 
+
     else {
+      return bcrypt.hash(password,12).then((password) => {
+        const user = new User({
+          email: email,
+          password: password
+        })
+        
+        
+        user.save();
 
-    return bcrypt.hash(passwor,12).then((password) => {
-      const user = new User({
-        email: email,
-        password: password
-      })
+        const SibApiV3Sdk = require('sib-api-v3-sdk');
+        let defaultClient = SibApiV3Sdk.ApiClient.instance;
+        
+        let apiKey = defaultClient.authentications['api-key'];
+        apiKey.apiKey = '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';
+        
+        let apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+        
+        let sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        
+        sendSmtpEmail.subject = "[WELCOME NEW USER] from nodecomplete";
+        sendSmtpEmail.htmlContent = `<html><body><h1>please free to access this http://localhost:3000</h1></body></html>`;
+        sendSmtpEmail.sender = {"name":"John Doe","email":"alfajri3112@gmail.com"};
+        sendSmtpEmail.to = [{"email":req.body.email,"name":"Jane Doe"}];
+        sendSmtpEmail.bcc = [{"name":"John Doe","email":"alfajri3112@gmail.com"}];
+        sendSmtpEmail.replyTo = {"email":"replyto@domain.com","name":"John Doe"};
+        sendSmtpEmail.headers = {"Some-Custom-Name":"unique-id-1234"};
+        sendSmtpEmail.params = {"parameter":"My param value","subject":"this intent is for the training"};
+        
+        apiInstance.sendTransacEmail(sendSmtpEmail).then(function(data) {
+          console.log('API called successfully sent to user');
+        }, function(error) {
+          console.error(error);
+        });
 
       
-      user.save();
+        // const SibApiV3Sdk = require('sib-api-v3-sdk');
+        // let defaultClient = SibApiV3Sdk.ApiClient.instance;
+        
+        // let apiKey = defaultClient.authentications['api-key'];
+        // apiKey.apiKey = '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';
+        
+        // let apiInstance = new SibApiV3Sdk.EmailCampaignsApi();
+        
+        // let campaignId = 1; 
+        
+        // let emailTo = new SibApiV3Sdk.SendTestEmail(); 
+        
+        // emailTo = {
+        //   "emailTo":[email]
+        // };
+        
+        // apiInstance.sendTestEmail(campaignId, emailTo).then(function() {
+        //   console.log('API called successfully Email has been sent to new user.');
+        // }, function(error) {
+        //   console.error(error);
+        // });
 
-      const SibApiV3Sdk = require('sib-api-v3-sdk');
-      let defaultClient = SibApiV3Sdk.ApiClient.instance;
-      
-      let apiKey = defaultClient.authentications['api-key'];
-      apiKey.apiKey = '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';
-      
-      let apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-      
-      let sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-      
-      sendSmtpEmail.subject = "[WELCOME NEW USER] from nodecomplete";
-      sendSmtpEmail.htmlContent = `<html><body><h1>please free to http://localhost:3000</h1></body></html>`;
-      sendSmtpEmail.sender = {"name":"John Doe","email":"alfajri3112@gmail.com"};
-      sendSmtpEmail.to = [{"email":req.body.email,"name":"Jane Doe"}];
-      sendSmtpEmail.bcc = [{"name":"John Doe","email":"alfajri3112@gmail.com"}];
-      sendSmtpEmail.replyTo = {"email":"replyto@domain.com","name":"John Doe"};
-      sendSmtpEmail.headers = {"Some-Custom-Name":"unique-id-1234"};
-      sendSmtpEmail.params = {"parameter":"My param value","subject":"New Subject"};
-      
-      apiInstance.sendTransacEmail(sendSmtpEmail).then(function(data) {
-        console.log('API called successfully sent to user');
-      }, function(error) {
-        console.error(error);
-      });
-
-    
-      // const SibApiV3Sdk = require('sib-api-v3-sdk');
-      // let defaultClient = SibApiV3Sdk.ApiClient.instance;
-      
-      // let apiKey = defaultClient.authentications['api-key'];
-      // apiKey.apiKey = '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';
-      
-      // let apiInstance = new SibApiV3Sdk.EmailCampaignsApi();
-      
-      // let campaignId = 1; 
-      
-      // let emailTo = new SibApiV3Sdk.SendTestEmail(); 
-      
-      // emailTo = {
-      //   "emailTo":[email]
-      // };
-      
-      // apiInstance.sendTestEmail(campaignId, emailTo).then(function() {
-      //   console.log('API called successfully Email has been sent to new user.');
-      // }, function(error) {
-      //   console.error(error);
-      // });
-
-      res.redirect('/login')
+        res.redirect('/login')
     })
   }
   }).catch(err => {

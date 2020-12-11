@@ -1,7 +1,9 @@
 const Product = require('../models/product');
 const Order = require('../models/order');
 const fs = require('fs')
-const path = require('path')
+const path = require('path');
+const Pdf = require('pdfkit');
+const remove = require('./../util/deleteimage')
 
 exports.getProducts = (req, res, next) => {
   Product.find()
@@ -130,16 +132,54 @@ exports.getDownloadOrder = (req,res,next) => {
   const invoice = 'order-'+orderId+'.pdf'
   const invoicePath = path.join('data','invoices',invoice)
 
-  fs.readFile(invoicePath,(err,data) => {
-    if(err) {
-      next(err)
-    }
-    else {
+
+  Order.findById(orderId).then(result => {
+    if(result.user.userId._id.toString() == req.user._id.toString()) {
+      ////pick one
+      // fs.readFile(invoicePath,(err,data) => {
+      //   if(err) {
+      //     next(err)
+      //   }
+      //   else {
+      //     res.setHeader('Content-Type','application/pdf')
+      //     res.setHeader('Content-Disposition','attachment; filename='+invoice)
+      //     res.send(data)
+      //   }
+      // })
+
+      ////pick one
+      // const file = fs.createWriteStream(invoicePath)
+      // res.setHeader('Content-Type','application/pdf')
+      // res.setHeader('Content-Disposition','inline; filename='+invoice)
+      // file.pipe(res)
+
+      const pdf = new Pdf();
       res.setHeader('Content-Type','application/pdf')
-      res.setHeader('Content-Disposition','attachment; filename='+invoice)
-      res.send(data)
+      res.setHeader('Content-Disposition','inline; filename='+invoice)
+      pdf.pipe(fs.createWriteStream(invoicePath))
+      pdf.pipe(res)
+      pdf.text('test from fajri')
+      pdf.fontSize(12).text('this is your invoice id '+result._id)
+      pdf.fontSize(12).text('this is your buying:')
+      pdf.text('----------------------------------------')
+      console.log(result.products)
+      result.products.forEach(result => {
+        pdf.text('judul buku '+result.product.title)
+        pdf.text('harga buku Rp.' +result.product.price+',00')
+        pdf.text('jumlah '+result.quantity)
+        pdf.text('total harga adalah '+result.product.price * result.quantity)
+        pdf.text('--------------------------------------')
+      })
+      
+      pdf.end()
     }
+ 
+    
+  }).catch(err => {
+    next(new Error('your id is restricted'))
   })
+
+  
 
   
 }

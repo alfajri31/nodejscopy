@@ -13,7 +13,10 @@
         <% } %> -->
 
         <% if (error) { %>
-            <% for(error of error) { %>
+            <% for(error of error) { console.log(error.msg) %>
+                <% if (error == 'email has already been taken') { %> 
+                    <%= error %> 
+                <% } %>
                 <h3><%= error.msg %></h3>
             <% } %>
         <% } %>
