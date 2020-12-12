@@ -23,4 +23,6 @@ router.get('/orders', isAuth, shopController.getOrders);
 
 router.get('/orders/:id',isAuth,shopController.getDownloadOrder);
 
+router.get('/checkout',isAuth,shopController.getCheckout);
+
 module.exports = router;

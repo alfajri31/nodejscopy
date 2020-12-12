@@ -1,0 +1,50 @@
+<%- include('../includes/head.ejs') %>
+<link rel="stylesheet" href="/css/cart.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+        <main>
+            <ul class="cart__item-list">
+                <% products.forEach(p => { %>
+                    <li class="cart__item">
+                        <h1><%= p.productId.title %></h1>
+                        <h2>Quantity: <%= p.quantity %></h2>
+                    </li>
+                <% }) %>
+            </ul>
+            <div class="centered">
+                <h2>Total: <%= totalSum %></h2>
+            </div>
+            <div class="centered">
+                <button id="order-btn" class="btn">ORDER</button>
+            </div>
+            <input type="hidden" id="token_order" name="token_order" value="<%= token %>">
+        </main>
+        <% var token = token; %>
+        <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-MI2dU1hVPgZEaKYB"></script>
+        <script>
+            var orderBtn = document.getElementById("order-btn")
+            var token = document.getElementById('token_order').value
+            console.log('TOKEEEEN '+token)
+            orderBtn.addEventListener('click',function() {
+                snap.pay(token, {
+                // Optional
+                onSuccess: function(result){
+                    console.log(result)
+                    /* You may add your own js here, this is just example */ document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                    },
+                    // Optional
+                    onPending: function(result){
+                        /* You may add your own js here, this is just example */ document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                    },
+                    // Optional
+                    onError: function(result){
+                        /* You may add your own js here, this is just example */ document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                    }
+                });
+                console.log('sukses')
+            })
+        </script>
+        <%- include('../includes/end.ejs') %>

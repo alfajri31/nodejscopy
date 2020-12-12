@@ -4,7 +4,12 @@ const fs = require('fs')
 const path = require('path');
 const Pdf = require('pdfkit');
 const remove = require('./../util/deleteimage')
+const midtransClient = require('midtrans-client');
+const product = require('../models/product');
+let snap = new midtransClient.Snap()
+snap.apiConfig.set({serverKey : 'SB-Mid-server-_TJnxCzHeTmekfNorAyBYPy_'});
 const ITEMS_PER_PAGE = 1
+
 
 exports.getProducts = (req, res, next) => {
   const page =+ req.query.page || 1 // + convert query string to integer dan tanda || 1 karena jika nilainya undefined/false  maka pilih nilai 1
@@ -211,13 +216,84 @@ exports.getDownloadOrder = (req,res,next) => {
       
       pdf.end()
     }
- 
-    
   }).catch(err => {
     next(new Error('your id is restricted'))
   })
-
-  
-
-  
 }
+ 
+
+  exports.getCheckout = (req,res,next) => {
+    let products;
+    let total = 0;
+
+    req.user
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+      const products = user.cart.items;
+      let total = 0;
+      products.forEach(p=> {
+        total += p.quantity * p.productId.price
+      })
+      
+      const line_items = products.map(p => {
+        return {
+          "id": "a1",
+          "price": 200000,
+          "quantity": 1,
+          "name": "Apel",
+          "brand": "Fuji Apple",
+          "category": "Fruit",
+          "merchant_name": "Fruit-store",
+          "tenor": "12",
+          "code_plan": "000",
+          "mid": "123456"
+        }
+      })
+      snap.createTransaction(
+        {
+          "transaction_details": 
+          {
+              "order_id": "test-transaction-123",
+              "gross_amount": 200000
+          }, 
+          "credit_card":
+          {
+              "secure" : true
+          },
+          line_items
+        }
+      )
+      .then((transaction)=>{
+          // transaction token
+          let transactionToken = transaction.token;
+          // console.log('transactionToken:',transactionToken);
+          return transactionToken
+      })
+      .then( token => {
+        res.render('shop/checkout', {
+          path: '/checkout',
+          pageTitle: 'Your Checkout',
+          products: products,
+          isAuthenticated: req.session.isLoggedIn,
+          totalSum: total,
+          token: token,
+        });       
+      })
+
+      // res.render('shop/checkout', {
+      //   path: '/checkout',
+      //   pageTitle: 'Your Checkout',
+      //   products: products,
+      //   isAuthenticated: req.session.isLoggedIn,
+      //   totalSum: total
+      // });
+    })
+    .catch(err => console.log(err));
+    
+    
+
+   
+
+  }
+  
