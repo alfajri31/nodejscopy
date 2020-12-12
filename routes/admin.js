@@ -29,7 +29,7 @@ router.post('/edit-product', [
     body('price').isNumeric().withMessage('Price must numeric').trim(),
     body('description').isLength({min:5,max:500}).withMessage('description minimal 5 and max 500 characters').trim()], isAuth, adminController.postEditProduct);
 
-router.post('/delete-product', isAuth, adminController.postDeleteProduct);
+router.delete('/product/:productId',isAuth,adminController.deleteAproduct)
 
 
 module.exports = router;

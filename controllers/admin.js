@@ -180,6 +180,24 @@ exports.getProducts = (req, res, next) => {
     .catch(err => console.log(err));
 };
 
+exports.deleteAproduct = (req,res,next) => {
+
+ 
+  const prodId = req.params.productId;
+  console.log('this is my prodId '+prodId)
+
+  Product.findById(prodId).then(result => {
+      return remove.deleteImage(result.imageUrl)
+  }).catch(err => next(new Error('no found image')))
+
+  Product.deleteOne({_id:prodId,userId:req.user._id})
+    .then(() => {
+      console.log('DESTROYED PRODUCT');
+      res.status(200).json({message: "Success!"})
+    })
+    .catch(err => res.status(500).json({message: "Failed!"}));
+}
+
 exports.postDeleteProduct = (req, res, next) => {
   const prodId = req.body.productId;
 
