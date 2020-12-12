@@ -223,6 +223,7 @@ exports.getDownloadOrder = (req,res,next) => {
  
 
   exports.getCheckout = (req,res,next) => {
+
     let products;
     let total = 0;
 
@@ -237,11 +238,12 @@ exports.getDownloadOrder = (req,res,next) => {
       })
       
       const line_items = products.map(p => {
+        console.log(p.productId)
         return {
-          "id": "a1",
-          "price": 200000,
-          "quantity": 1,
-          "name": "Apel",
+          "id": p.productId,
+          "price": p.productId.price,
+          "quantity": p.quantity,
+          "name": p.productId.title,
           "brand": "Fuji Apple",
           "category": "Fruit",
           "merchant_name": "Fruit-store",
@@ -250,12 +252,13 @@ exports.getDownloadOrder = (req,res,next) => {
           "mid": "123456"
         }
       })
+      const transcation_id = Math.floor(Math.random() * 10000);
       snap.createTransaction(
         {
           "transaction_details": 
           {
-              "order_id": "test-transaction-123",
-              "gross_amount": 200000
+              "order_id": 'transaction-'+transcation_id,
+              "gross_amount": total
           }, 
           "credit_card":
           {
@@ -278,9 +281,8 @@ exports.getDownloadOrder = (req,res,next) => {
           isAuthenticated: req.session.isLoggedIn,
           totalSum: total,
           token: token,
-        });       
+        });   
       })
-
       // res.render('shop/checkout', {
       //   path: '/checkout',
       //   pageTitle: 'Your Checkout',

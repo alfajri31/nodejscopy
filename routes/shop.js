@@ -17,12 +17,15 @@ router.post('/cart', isAuth, shopController.postCart);
 
 router.post('/cart-delete-item', isAuth, shopController.postCartDeleteProduct);
 
-router.post('/create-order', isAuth,shopController.postOrder);
+// router.post('/create-order', isAuth,shopController.postOrder);
 
 router.get('/orders', isAuth, shopController.getOrders);
 
 router.get('/orders/:id',isAuth,shopController.getDownloadOrder);
 
 router.get('/checkout',isAuth,shopController.getCheckout);
+
+router.get('/checkout/success',isAuth, shopController.postOrder);
+
 
 module.exports = router;

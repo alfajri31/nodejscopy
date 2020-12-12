@@ -20,31 +20,41 @@
             <div class="centered">
                 <button id="order-btn" class="btn">ORDER</button>
             </div>
+             <!-- <form action="/create-order" method="POST">
+                <input type="hidden" name="_csrf" value= '<%= csrfToken %>'>
+                        <button type="submit" class="btn">Order Now!</button>
+                    </form> -->
+
+            <input type="hidden" id="csrf" name="_csrf" value= '<%= csrfToken %>'>
             <input type="hidden" id="token_order" name="token_order" value="<%= token %>">
+           
         </main>
         <% var token = token; %>
         <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-MI2dU1hVPgZEaKYB"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>
             var orderBtn = document.getElementById("order-btn")
             var token = document.getElementById('token_order').value
-            console.log('TOKEEEEN '+token)
+            var csrf = document.getElementById('csrf').value
             orderBtn.addEventListener('click',function() {
+
+
                 snap.pay(token, {
                 // Optional
-                onSuccess: function(result){
-                    console.log(result)
-                    /* You may add your own js here, this is just example */ document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                    onSuccess: function(result){
+                       
                     },
                     // Optional
                     onPending: function(result){
-                        /* You may add your own js here, this is just example */ document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                   
+                            window.location = "/checkout/success";
+                    
                     },
                     // Optional
                     onError: function(result){
-                        /* You may add your own js here, this is just example */ document.getElementById('result-json').innerHTML += JSON.stringify(result, null, 2);
+                        /* You may add your own js here, this is just example */ 
                     }
                 });
-                console.log('sukses')
             })
         </script>
         <%- include('../includes/end.ejs') %>
